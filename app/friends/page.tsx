@@ -2,20 +2,23 @@
 import { useState, useEffect } from "react";
 import GameBoard from "../components/GameBoard";
 import { GameRules } from "../types";
-
-const socket = new WebSocket("ws://localhost:4000");
+import DiceRoller from "../components/DiceRoller";
 
 export default function Page() {
+  const socket = new WebSocket("ws://localhost:4000");
+  socket.onopen = () => console.log("Socket connected");
+  socket.onclose = () => console.log("Socket closed");
+  socket.onerror = (error) => console.error("WebSocket error:", error);
   const [players, setPlayers] = useState<{ id: string; name: string }[]>([]);
   const [playerID, setPlayerID] = useState<string>("");
   const [roomCode, setRoomCode] = useState("");
   const [numberOfPlayers, setNumberOfPlayers] = useState<number>(0);
   const [diceRoll, setDiceRoll] = useState<number | null>(null);
 
-  const generatedDiceRoll = () => {
-    const diceValue = Math.floor(Math.random() * 6) + 1;
-    return diceValue;
-  };
+  // const generatedDiceRoll = () => {
+  //   const diceValue = Math.floor(Math.random() * 6) + 1;
+  //   return diceValue;
+  // };
 
   const gameRules: GameRules = {
     ladders: {
@@ -38,10 +41,11 @@ export default function Page() {
       98: 64,
     },
   };
+
   useEffect(() => {
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log("Received message:", message);
+      console.log("Parsed WebSocket message:", message);
       switch (message.type) {
         case "room-created":
           console.log("Room created:", message);
@@ -51,8 +55,10 @@ export default function Page() {
             ...prevPlayers,
             { id: message.playerID, name: message.player },
           ]);
+          setNumberOfPlayers(message.players);
           break;
         case "player-joined":
+          setPlayerID(message.playerID);
           setPlayers((prevPlayers) => [
             ...prevPlayers,
             { id: message.playerID, name: message.player },
@@ -60,8 +66,10 @@ export default function Page() {
           setNumberOfPlayers(message.players);
           break;
         case "dice-rolled":
-          console.log("Received dice roll:", message.diceRoll);
-          setDiceRoll(message.diceRoll);
+          console.log("hello from dice rolled");
+          console.log("Received dice roll:", message);
+
+          setDiceRoll(message.diceValue);
           break;
       }
     };
@@ -71,10 +79,19 @@ export default function Page() {
     };
   }, []);
 
+  useEffect(() => {
+    console.log("Dice roll:", diceRoll);
+  }, [diceRoll]);
+  // const [name, setName] = useState<string>("");
+
   const createRoom = () => {
-    const name = prompt("Enter your name:");
-    console.log("Creating room...");
-    socket.send(JSON.stringify({ type: "create-room", name: name }));
+    if (socket.readyState === WebSocket.OPEN) {
+      // If the WebSocket connection is already open, send the message directly.
+      socket.send(JSON.stringify({ type: "create-room", name: "Player" }));
+      console.log("Creating room...");
+    } else {
+      console.error("WebSocket is not open. Cannot send create-room message.");
+    }
   };
 
   const joinRoom = () => {
@@ -88,14 +105,27 @@ export default function Page() {
   };
 
   const rollDice = () => {
-    const diceValue = generatedDiceRoll();
+    console.log("dice roll got clicked sir");
     socket.send(
-      JSON.stringify({ type: "roll-dice", diceValue, playerID, roomCode })
+      JSON.stringify({
+        type: "roll-dice",
+        roomCode: `${roomCode}`,
+        playerId: `${playerID}`,
+      })
     );
   };
 
   return (
-    <div className="flex items-center justify-center h-screen space-x-10">
+    <div className="flex  items-center justify-center h-screen space-x-10">
+      <div className="flex-1">
+        <DiceRoller
+          diceValue={diceRoll}
+          onRoll={rollDice}
+          disabled={false}
+          message={`you rolled ${diceRoll}`}
+        />
+      </div>
+
       <GameBoard
         userPosition={0}
         botPosition={0}
@@ -124,8 +154,8 @@ export default function Page() {
         <div>
           <p className="text-white">Players in Room: {numberOfPlayers}</p>
           <ul className="text-white">
-            {players.map((player) => (
-              <li key={player.id}>
+            {players.map((player, idx) => (
+              <li key={idx}>
                 {player.name} (ID: {player.id})
               </li>
             ))}
@@ -138,6 +168,10 @@ export default function Page() {
             Dice Roll: {diceRoll}
           </p>
         )}
+        {players.length > 0 &&
+          players.map((player, idx) => (
+            <div key={idx} className="player user"></div>
+          ))}
       </div>
     </div>
   );
