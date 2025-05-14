@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import GameBoard from "../components/GameBoard";
 import { GameRules } from "../types";
 import DiceRoller from "../components/DiceRoller";
@@ -14,6 +14,7 @@ export default function Page() {
   const [roomCode, setRoomCode] = useState("");
   const [numberOfPlayers, setNumberOfPlayers] = useState<number>(0);
   const [diceRoll, setDiceRoll] = useState<number | null>(null);
+  const [myTurn, setMyTurn] = useState<boolean>(false);
 
   // const generatedDiceRoll = () => {
   //   const diceValue = Math.floor(Math.random() * 6) + 1;
@@ -41,6 +42,7 @@ export default function Page() {
       98: 64,
     },
   };
+  const playerIDRef = useRef(playerID);
 
   useEffect(() => {
     socket.onmessage = (event) => {
@@ -55,10 +57,15 @@ export default function Page() {
             ...prevPlayers,
             { id: message.playerID, name: message.player },
           ]);
+          playerIDRef.current = message.playerID;
           setNumberOfPlayers(message.players);
           break;
+
+        case "joined-success":
+          setPlayerID(message.playerId);
+          playerIDRef.current = message.playerId;
+          break;
         case "player-joined":
-          setPlayerID(message.playerID);
           setPlayers((prevPlayers) => [
             ...prevPlayers,
             { id: message.playerID, name: message.player },
@@ -71,17 +78,21 @@ export default function Page() {
 
           setDiceRoll(message.diceValue);
           break;
+
+        case "player-turn":
+          console.log("My id : ", playerIDRef.current);
+          setMyTurn(message.playerId === playerIDRef.current);
+          console.log("current Turn: ", message.playerId);
+          console.log("my turn: ", message.playerId === playerIDRef.current);
+          break;
       }
     };
-
+    console.log("my turn", myTurn);
     return () => {
       socket.close();
     };
   }, []);
 
-  useEffect(() => {
-    console.log("Dice roll:", diceRoll);
-  }, [diceRoll]);
   // const [name, setName] = useState<string>("");
 
   const createRoom = () => {
@@ -117,11 +128,21 @@ export default function Page() {
 
   return (
     <div className="flex  items-center justify-center h-screen space-x-10">
+      <div className="flex flex-col space-y-2">
+        {players.length > 0 &&
+          players.map((player, idx) => (
+            <div
+              key={idx}
+              className=" border border-black rounded-md px-4 py-2 bg-white text-red-500 w-full h-full px-10">
+              {player.id}
+            </div>
+          ))}
+      </div>
       <div className="flex-1">
         <DiceRoller
           diceValue={diceRoll}
           onRoll={rollDice}
-          disabled={false}
+          disabled={!myTurn}
           message={`you rolled ${diceRoll}`}
         />
       </div>
@@ -168,10 +189,14 @@ export default function Page() {
             Dice Roll: {diceRoll}
           </p>
         )}
-        {players.length > 0 &&
-          players.map((player, idx) => (
-            <div key={idx} className="player user"></div>
-          ))}
+        <div>
+          {playerID && (
+            <h3 className="text-yellow-300">My player Id: {playerID}</h3>
+          )}
+        </div>
+        <div>
+          <h3 className="text-yellow-300">My Turn: {myTurn}</h3>
+        </div>
       </div>
     </div>
   );

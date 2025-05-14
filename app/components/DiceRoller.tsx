@@ -23,6 +23,8 @@ export default function DiceRoller({
 
   // Handle rolling animation
   useEffect(() => {
+    console.log("isRolling", isRolling);
+    console.log("diceValue", diceValue);
     if (isRolling) {
       const timer = setTimeout(() => {
         setIsRolling(false);
