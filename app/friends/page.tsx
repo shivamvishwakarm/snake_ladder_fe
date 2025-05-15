@@ -12,6 +12,7 @@ export default function Page() {
   const [numberOfPlayers, setNumberOfPlayers] = useState<number>(0);
   const [diceRoll, setDiceRoll] = useState<number | null>(null);
   const [myTurn, setMyTurn] = useState<boolean>(false);
+  const [gameOver, setGameOver] = useState<boolean>(false);
 
   const playerIDRef = useRef(playerID);
   const socketRef = useRef<WebSocket | null>(null);
@@ -89,6 +90,11 @@ export default function Page() {
 
         case "player-turn":
           setMyTurn(message.playerId === playerIDRef.current);
+          break;
+
+        case "game-over":
+          const iswinner = message.playerId === playerIDRef.current;
+          setGameOver(iswinner);
           break;
 
         default:
@@ -174,19 +180,29 @@ export default function Page() {
 
       <div className="flex flex-col space-y-2">
         {roomCode && <h2 className="text-white">Room Code: {roomCode}</h2>}
-        <button onClick={createRoom} className="btn">
+        <button
+          onClick={createRoom}
+          className="btn border border-black px-4 py-1 bg-white rounded">
           Create Room
         </button>
-        <button onClick={joinRoom} className="btn">
+        <button
+          onClick={joinRoom}
+          className="btn border border-black px-4 py-1 bg-white rounded">
           Join Room
         </button>
-        <button onClick={rollDice} className="btn">
+        <button
+          onClick={rollDice}
+          className="btn border border-black px-4 py-1 bg-white rounded">
           Roll Dice
         </button>
-        <button onClick={startGame} className="btn">
+        <button
+          onClick={startGame}
+          className="btn border border-black px-4 py-1 bg-white rounded">
           Start Game
         </button>
-
+        {gameOver && (
+          <h3 className="text-red-500">{gameOver ? "you win" : "you lose"}</h3>
+        )}
         <p className="text-white">Players in Room: {numberOfPlayers}</p>
         {diceRoll !== null && (
           <p className="text-white">
