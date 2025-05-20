@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import GameBoard from "../components/GameBoard";
+import GameBoardFriends from "../components/GameBoardFriends";
 import DiceRoller from "../components/DiceRoller";
 import { GameRules } from "../types";
 
@@ -14,7 +14,7 @@ interface player {
 }
 
 export default function Page() {
-  // const [players, setPlayers] = useState<{ id: string; name: string }[]>([]);
+  const [players, setPlayers] = useState<player[]>([]);
   const [playerID, setPlayerID] = useState<string>("");
   const [roomCode, setRoomCode] = useState("");
   const [numberOfPlayers, setNumberOfPlayers] = useState<number>(0);
@@ -29,7 +29,7 @@ export default function Page() {
   ];
   const playerIDRef = useRef(playerID);
   const socketRef = useRef<WebSocket | null>(null);
-  const players: player[] = [];
+  // const players: player[] = [];
 
   const gameRules: GameRules = {
     ladders: {
@@ -94,7 +94,8 @@ export default function Page() {
           //   ...prev,
           //   { id: message.playerID, name: message.player },
           // ]);
-          players.push(message.allPlayers);
+          setPlayers(message.allPlayers);
+          console.log(`message.allPlayers`, message.allPlayers);
           setNumberOfPlayers(message.players);
           break;
 
@@ -118,6 +119,9 @@ export default function Page() {
           const iswinner = message.playerId === playerIDRef.current;
           setGameOver(iswinner);
           break;
+
+        case "room-full":
+          alert("Room is full! Only 4 players can join.");
 
         default:
           console.warn("Unhandled message type:", message.type);
@@ -178,8 +182,10 @@ export default function Page() {
         {players.map((player, idx) => (
           <div
             key={idx}
-            className="border border-black rounded-md px-4 py-2 bg-white text-red-500">
-            {player.name} (ID: {player.id})
+            className={`border border-black rounded-md px-4 py-2  text-white ${
+              colorClasses[idx]
+            } ${myTurn ? "border-2 border-white" : ""}`}>
+            {player.name}
           </div>
         ))}
       </div>
@@ -193,7 +199,7 @@ export default function Page() {
         />
       </div>
 
-      <GameBoard
+      <GameBoardFriends
         userPosition={0}
         botPosition={0}
         ladders={gameRules.ladders}
