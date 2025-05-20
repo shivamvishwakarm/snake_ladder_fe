@@ -5,17 +5,31 @@ import GameBoard from "../components/GameBoard";
 import DiceRoller from "../components/DiceRoller";
 import { GameRules } from "../types";
 
+interface player {
+  id: string;
+  name: string;
+  diceValue: number;
+  position: number;
+  started: boolean;
+}
+
 export default function Page() {
-  const [players, setPlayers] = useState<{ id: string; name: string }[]>([]);
+  // const [players, setPlayers] = useState<{ id: string; name: string }[]>([]);
   const [playerID, setPlayerID] = useState<string>("");
   const [roomCode, setRoomCode] = useState("");
   const [numberOfPlayers, setNumberOfPlayers] = useState<number>(0);
   const [diceRoll, setDiceRoll] = useState<number | null>(null);
   const [myTurn, setMyTurn] = useState<boolean>(false);
   const [gameOver, setGameOver] = useState<boolean>(false);
-
+  const colorClasses = [
+    "bg-red-500",
+    "bg-yellow-500",
+    "bg-green-500",
+    "bg-blue-500",
+  ];
   const playerIDRef = useRef(playerID);
   const socketRef = useRef<WebSocket | null>(null);
+  const players: player[] = [];
 
   const gameRules: GameRules = {
     ladders: {
@@ -56,10 +70,17 @@ export default function Page() {
           setRoomCode(message.roomCode);
           setPlayerID(message.playerID);
           playerIDRef.current = message.playerID;
-          setPlayers((prev) => [
-            ...prev,
-            { id: message.playerID, name: message.player },
-          ]);
+          // setPlayers((prev) => [
+          //   ...prev,
+          const player = {
+            id: message.playerID,
+            name: message.player,
+            diceValue: 0,
+            position: 0,
+            started: false,
+          };
+          players.push(player);
+          // ]);
           setNumberOfPlayers(message.players);
           break;
 
@@ -69,10 +90,11 @@ export default function Page() {
           break;
 
         case "player-joined":
-          setPlayers((prev) => [
-            ...prev,
-            { id: message.playerID, name: message.player },
-          ]);
+          // setPlayers((prev) => [
+          //   ...prev,
+          //   { id: message.playerID, name: message.player },
+          // ]);
+          players.push(message.allPlayers);
           setNumberOfPlayers(message.players);
           break;
 
@@ -177,7 +199,14 @@ export default function Page() {
         ladders={gameRules.ladders}
         snakes={gameRules.snakes}
       />
-
+      <div className="flex flex-cols gap-2 ">
+        {players.length > 0 &&
+          players.map((player, idx) => (
+            <div
+              key={idx}
+              className={`w-[24px] h-[24px] ${colorClasses[idx]} rounded-full shadow-sm shadow-gray-500`}></div>
+          ))}
+      </div>
       <div className="flex flex-col space-y-2">
         {roomCode && <h2 className="text-white">Room Code: {roomCode}</h2>}
         <button
