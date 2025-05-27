@@ -21,3 +21,11 @@ export interface GameState {
     winner: Player | null;
     message: string;
 }
+
+export interface player {
+    id: string;
+    name: string;
+    diceValue: number;
+    position: number;
+    started: boolean;
+}

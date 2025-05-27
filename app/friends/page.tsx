@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import GameBoardFriends from "../components/GameBoardFriends";
+import GameBoard from "../components/GameBoardFriends";
 import DiceRoller from "../components/DiceRoller";
 import { GameRules } from "../types";
 
@@ -14,7 +14,8 @@ interface player {
 }
 
 export default function Page() {
-  const [players, setPlayers] = useState<player[]>([]);
+  const [playersState, setPlayersState] = useState<player[]>([]);
+  const playersRef = useRef<player[]>([]);
   const [playerID, setPlayerID] = useState<string>("");
   const [roomCode, setRoomCode] = useState("");
   const [numberOfPlayers, setNumberOfPlayers] = useState<number>(0);
@@ -29,7 +30,6 @@ export default function Page() {
   ];
   const playerIDRef = useRef(playerID);
   const socketRef = useRef<WebSocket | null>(null);
-  // const players: player[] = [];
 
   const gameRules: GameRules = {
     ladders: {
@@ -53,6 +53,11 @@ export default function Page() {
     },
   };
 
+  const updatePlayers = (newPlayers: player[]) => {
+    playersRef.current = newPlayers;
+    setPlayersState(newPlayers);
+  };
+
   const initializeWebSocket = useCallback(() => {
     const socket = new WebSocket("ws://localhost:4000");
     socketRef.current = socket;
@@ -63,24 +68,22 @@ export default function Page() {
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log("WebSocket message:", message);
+      console.log("WebSocket message:>", message);
 
       switch (message.type) {
         case "room-created":
           setRoomCode(message.roomCode);
           setPlayerID(message.playerID);
           playerIDRef.current = message.playerID;
-          // setPlayers((prev) => [
-          //   ...prev,
-          const player = {
-            id: message.playerID,
-            name: message.player,
-            diceValue: 0,
-            position: 0,
-            started: false,
-          };
-          players.push(player);
-          // ]);
+          updatePlayers([
+            {
+              id: message.playerID,
+              name: message.player,
+              diceValue: 0,
+              position: 0,
+              started: false,
+            },
+          ]);
           setNumberOfPlayers(message.players);
           break;
 
@@ -90,17 +93,22 @@ export default function Page() {
           break;
 
         case "player-joined":
-          // setPlayers((prev) => [
-          //   ...prev,
-          //   { id: message.playerID, name: message.player },
-          // ]);
-          setPlayers(message.allPlayers);
-          console.log(`message.allPlayers`, message.allPlayers);
+          updatePlayers(message.allPlayers);
           setNumberOfPlayers(message.players);
           break;
 
         case "dice-rolled":
+          // update players
+          const player = playersRef.current.find(
+            (p) => p.id === message.playerId
+          );
+          console.log("player:", player);
+          if (player) {
+            player.diceValue = message.diceValue;
+            player.position = message.position;
+          }
           setDiceRoll(message.diceValue);
+          console.log("Current players (ref):", playersRef.current);
           break;
 
         case "room-not-found":
@@ -116,12 +124,13 @@ export default function Page() {
           break;
 
         case "game-over":
-          const iswinner = message.playerId === playerIDRef.current;
-          setGameOver(iswinner);
+          const isWinner = message.playerId === playerIDRef.current;
+          setGameOver(isWinner);
           break;
 
         case "room-full":
           alert("Room is full! Only 4 players can join.");
+          break;
 
         default:
           console.warn("Unhandled message type:", message.type);
@@ -179,10 +188,10 @@ export default function Page() {
   return (
     <div className="flex items-center justify-center h-screen space-x-10">
       <div className="flex flex-col space-y-2">
-        {players.map((player, idx) => (
+        {playersState.map((player, idx) => (
           <div
             key={idx}
-            className={`border border-black rounded-md px-4 py-2  text-white ${
+            className={`border border-black rounded-md px-4 py-2 text-white ${
               colorClasses[idx]
             } ${myTurn ? "border-2 border-white" : ""}`}>
             {player.name}
@@ -198,20 +207,19 @@ export default function Page() {
           message={`You rolled ${diceRoll}`}
         />
       </div>
+      {}
 
-      <GameBoardFriends
-        userPosition={0}
-        botPosition={0}
+      <GameBoard
         ladders={gameRules.ladders}
         snakes={gameRules.snakes}
+        players={playersRef.current}
       />
-      <div className="flex flex-cols gap-2 ">
-        {players.length > 0 &&
-          players.map((player, idx) => (
-            <div
-              key={idx}
-              className={`w-[24px] h-[24px] ${colorClasses[idx]} rounded-full shadow-sm shadow-gray-500`}></div>
-          ))}
+      <div className="flex flex-cols gap-2">
+        {playersState.map((_, idx) => (
+          <div
+            key={idx}
+            className={`w-[24px] h-[24px] ${colorClasses[idx]} rounded-full shadow-sm shadow-gray-500`}></div>
+        ))}
       </div>
       <div className="flex flex-col space-y-2">
         {roomCode && <h2 className="text-white">Room Code: {roomCode}</h2>}
@@ -236,12 +244,13 @@ export default function Page() {
           Start Game
         </button>
         {gameOver && (
-          <h3 className="text-red-500">{gameOver ? "you win" : "you lose"}</h3>
+          <h3 className="text-red-500">{gameOver ? "You win" : "You lose"}</h3>
         )}
         <p className="text-white">Players in Room: {numberOfPlayers}</p>
         {diceRoll !== null && (
           <p className="text-white">
-            {players.find((p) => p.id === playerID)?.name || "Unknown Player"}{" "}
+            {playersState.find((p) => p.id === playerID)?.name ||
+              "Unknown Player"}{" "}
             rolled: {diceRoll}
           </p>
         )}
