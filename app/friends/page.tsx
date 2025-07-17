@@ -37,7 +37,9 @@ export default function Page() {
   };
 
   const initializeWebSocket = useCallback(() => {
-    const socket = new WebSocket("ws://localhost:80");
+    const socket = new WebSocket("wss://snake-ladder-ws.onrender.com/");
+    // const socket = new WebSocket("ws://localhost:80");
+
     socketRef.current = socket;
 
     socket.onopen = () => console.log("WebSocket connected");
