@@ -32,6 +32,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
             ? (BOARD_SIZE - col - 1) * CELL_SIZE + CELL_SIZE / 2
             : col * CELL_SIZE + CELL_SIZE / 2;
         const y = (BOARD_SIZE - row - 1) * CELL_SIZE + CELL_SIZE / 2;
+
         return { x, y };
     };
 
@@ -169,15 +170,15 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
             {/* Cells */}
             {[...Array(BOARD_SIZE)].map((_, rowIndex) =>
                 [...Array(BOARD_SIZE)].map((_, colIndex) => {
-                    const row = BOARD_SIZE - rowIndex - 1;
-                    const isReverseRow = row % 2 === 1;
-                    const col = isReverseRow ? BOARD_SIZE - colIndex - 1 : colIndex;
-                    const cellNumber = row * BOARD_SIZE + col + 1;
+                    const actualRow = BOARD_SIZE - rowIndex - 1; // for numbering bottom-up
+                    const isReverseRow = actualRow % 2 === 1;
+                    const actualCol = isReverseRow ? BOARD_SIZE - colIndex - 1 : colIndex;
+                    const cellNumber = actualRow * BOARD_SIZE + actualCol + 1;
 
                     return (
                         <g key={cellNumber}>
                             <rect
-                                x={col * CELL_SIZE}
+                                x={colIndex * CELL_SIZE}
                                 y={rowIndex * CELL_SIZE}
                                 width={CELL_SIZE}
                                 height={CELL_SIZE}
@@ -185,17 +186,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
                                 stroke="gray"
                             />
                             <text
-                                x={col * CELL_SIZE + 5}
+                                x={colIndex * CELL_SIZE + 5}
                                 y={rowIndex * CELL_SIZE + 15}
                                 fontSize="10"
-                                fill="gray">
+                                fill="gray"
+                            >
                                 {cellNumber}
                             </text>
                         </g>
                     );
                 })
             )}
-
             {/* Snakes and Ladders */}
             {renderSnakesAndLadders()}
 

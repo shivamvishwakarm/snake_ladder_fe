@@ -174,8 +174,9 @@ export default function Page() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen space-x-10">
-      <div className="flex flex-col space-y-2">
+    <div className="grid grid-cols-3 gap-4 h-screen space-x-10  justify-self-center py-10 px-10
+">
+      {/* <div className="flex  flex-col space-y-2">
         {playersState.map((player, idx) => (
           <div
             key={idx}
@@ -184,9 +185,9 @@ export default function Page() {
             {player.name}
           </div>
         ))}
-      </div>
+      </div> */}
 
-      <div className="flex-1">
+      <div className="">
         <DiceRoller
           diceValue={diceRoll}
           onRoll={rollDice}
@@ -196,64 +197,60 @@ export default function Page() {
       </div>
       {/* player info  */}
 
-      <div>
-        <div className="p-2 rounded-md bg-red-500" />
 
-        <div>
-          <h4>You</h4>
-          <p> position </p>
+      <div className="flex-1">
+        <GameBoard
+          ladders={gameRules.ladders}
+          snakes={gameRules.snakes}
+          players={playersRef.current}
+        />
+      </div>
+      <div className="flex flex-col space-y-2  items-end ">
+        <div className="flex flex-cols gap-2">
+          {playersState.map((_, idx) => (
+            <div
+              key={idx}
+              className={`w-[24px] h-[24px] ${colorClasses[idx]} rounded-full shadow-sm shadow-gray-500`}></div>
+          ))}
         </div>
-      </div>
-
-      <GameBoard
-        ladders={gameRules.ladders}
-        snakes={gameRules.snakes}
-        players={playersRef.current}
-      />
-      <div className="flex flex-cols gap-2">
-        {playersState.map((_, idx) => (
-          <div
-            key={idx}
-            className={`w-[24px] h-[24px] ${colorClasses[idx]} rounded-full shadow-sm shadow-gray-500`}></div>
-        ))}
-      </div>
-      <div className="flex flex-col space-y-2">
-        {roomCode && <h2 className="text-white">Room Code: {roomCode}</h2>}
-        <button
-          onClick={createRoom}
-          className="btn border border-black px-4 py-1 bg-white rounded">
-          Create Room
-        </button>
-        <button
-          onClick={joinRoom}
-          className="btn border border-black px-4 py-1 bg-white rounded">
-          Join Room
-        </button>
-        <button
-          onClick={rollDice}
-          className="btn border border-black px-4 py-1 bg-white rounded">
-          Roll Dice
-        </button>
-        <button
-          onClick={startGame}
-          className="btn border border-black px-4 py-1 bg-white rounded">
-          Start Game
-        </button>
-        {gameOver && (
-          <h3 className="text-red-500">{gameOver ? "You win" : "You lose"}</h3>
-        )}
-        <p className="text-white">Players in Room: {numberOfPlayers}</p>
-        {diceRoll !== null && (
-          <p className="text-white">
-            {playersState.find((p) => p.id === playerID)?.name ||
-              "Unknown Player"}{" "}
-            rolled: {diceRoll}
-          </p>
-        )}
-        {playerID && (
-          <h3 className="text-yellow-300">My Player ID: {playerID}</h3>
-        )}
-        <h3 className="text-yellow-300">My Turn: {myTurn.toString()}</h3>
+        <div className="flex flex-col  space-y-2">
+          {roomCode && <h2 className="text-white">Room Code: {roomCode}</h2>}
+          <button
+            onClick={createRoom}
+            className="btn border border-black px-4 py-1 bg-white rounded">
+            Create Room
+          </button>
+          <button
+            onClick={joinRoom}
+            className="btn border border-black px-4 py-1 bg-white rounded">
+            Join Room
+          </button>
+          <button
+            onClick={rollDice}
+            className="btn border border-black px-4 py-1 bg-white rounded">
+            Roll Dice
+          </button>
+          <button
+            onClick={startGame}
+            className="btn border border-black px-4 py-1 bg-white rounded">
+            Start Game
+          </button>
+          {gameOver && (
+            <h3 className="text-red-500">{gameOver ? "You win" : "You lose"}</h3>
+          )}
+          <p className="text-white">Players in Room: {numberOfPlayers}</p>
+          {diceRoll !== null && (
+            <p className="text-white">
+              {playersState.find((p) => p.id === playerID)?.name ||
+                "Unknown Player"}{" "}
+              rolled: {diceRoll}
+            </p>
+          )}
+          {playerID && (
+            <h3 className="text-yellow-300">My Player ID: {playerID}</h3>
+          )}
+          <h3 className="text-yellow-300">My Turn: {myTurn.toString()}</h3>
+        </div>
       </div>
     </div>
   );
