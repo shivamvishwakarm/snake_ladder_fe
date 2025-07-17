@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import GameBoard from "../components/GameBoardFriends";
+import GameBoard from "../components/GameBoardSvg";
 import DiceRoller from "../components/DiceRoller";
-import { GameRules } from "../types";
+import { gameRules } from "../constants";
 
 interface player {
   id: string;
@@ -31,35 +31,13 @@ export default function Page() {
   const playerIDRef = useRef(playerID);
   const socketRef = useRef<WebSocket | null>(null);
 
-  const gameRules: GameRules = {
-    ladders: {
-      3: 22,
-      5: 17,
-      11: 33,
-      21: 56,
-      25: 40,
-      42: 60,
-      57: 76,
-      70: 93,
-    },
-    snakes: {
-      27: 8,
-      39: 19,
-      48: 30,
-      65: 52,
-      79: 41,
-      95: 73,
-      98: 64,
-    },
-  };
-
   const updatePlayers = (newPlayers: player[]) => {
     playersRef.current = newPlayers;
     setPlayersState(newPlayers);
   };
 
   const initializeWebSocket = useCallback(() => {
-    const socket = new WebSocket("ws://localhost:4000");
+    const socket = new WebSocket("ws://localhost:80");
     socketRef.current = socket;
 
     socket.onopen = () => console.log("WebSocket connected");
@@ -85,11 +63,21 @@ export default function Page() {
             },
           ]);
           setNumberOfPlayers(message.players);
+          // sendMessage({
+          //   type: "reconnect",
+          //   playerId: message.playerID, 
+          //   roomCode: message.roomCode, 
+          // });
           break;
 
         case "joined-success":
           setPlayerID(message.playerId);
           playerIDRef.current = message.playerId;
+          //           sendMessage({
+          //   type: "reconnect",
+          //   playerId: message.playerId,
+          //   roomCode: roomCode,
+          // });
           break;
 
         case "player-joined":
@@ -145,7 +133,7 @@ export default function Page() {
     return () => socketRef.current?.close();
   }, [initializeWebSocket]);
 
-  const sendMessage = (message: Record<string, any>) => {
+  const sendMessage = (message: Record<string, unknown>) => {
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify(message));
     } else {
@@ -191,9 +179,8 @@ export default function Page() {
         {playersState.map((player, idx) => (
           <div
             key={idx}
-            className={`border border-black rounded-md px-4 py-2 text-white ${
-              colorClasses[idx]
-            } ${myTurn ? "border-2 border-white" : ""}`}>
+            className={`border border-black rounded-md px-4 py-2 text-white ${colorClasses[idx]
+              } ${myTurn ? "border-2 border-white" : ""}`}>
             {player.name}
           </div>
         ))}
@@ -207,7 +194,16 @@ export default function Page() {
           message={`You rolled ${diceRoll}`}
         />
       </div>
-      {}
+      {/* player info  */}
+
+      <div>
+        <div className="p-2 rounded-md bg-red-500" />
+
+        <div>
+          <h4>You</h4>
+          <p> position </p>
+        </div>
+      </div>
 
       <GameBoard
         ladders={gameRules.ladders}

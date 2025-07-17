@@ -17,7 +17,7 @@ interface GameBoardProps {
 }
 
 const BOARD_SIZE = 10; // 10x10 board
-
+const playerColors = ["#ef4444", "#f59e0b", "#10b981", "#3b82f6"];
 const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
   // Zigzag numbering for the board
 
@@ -48,6 +48,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
             <div className="absolute top-0 left-0 text-[10px] text-gray-400 p-0.5 select-none">
               {cellNumber}
             </div>
+            {cellNumber === 1 && (
+              <div className="absolute bottom-0 right-0 text-green-500 text-sm select-none font-black">
+                Start
+              </div>
+            )}
 
             {/* Snake indication */}
             {isSnake && (
@@ -65,16 +70,17 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
 
             {/* Player tokens */}
             <div className="flex flex-wrap justify-center items-center gap-1">
-              {players.map((player) => (
-                <div
-                  key={player.id}
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-yellow-800 select-none ${
-                    player.position === cellNumber ? "bg-yellow-800" : ""
-                  }`}
-                  title={player.name}>
-                  {player.position === cellNumber ? player.position : ""}
-                </div>
-              ))}
+              {players
+  .filter((player) => player.position === cellNumber)
+  .map((player, index) => (
+    <div
+      key={player.id}
+      className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white select-none`}
+      style={{ backgroundColor: playerColors[index % playerColors.length] }}
+      title={player.name}>
+      {index + 1}
+    </div>
+))}
             </div>
           </div>
         );

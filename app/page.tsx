@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+
 export default function Home() {
   return (
     <div className="h-[80vh] flex flex flex-col items-center justify-center">
@@ -15,6 +16,8 @@ export default function Home() {
           Play with player
         </Link>
       </div>
+
+
     </div>
   );
 }
