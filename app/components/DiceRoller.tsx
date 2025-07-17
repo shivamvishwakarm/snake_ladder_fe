@@ -32,7 +32,7 @@ export default function DiceRoller({
 
       return () => clearTimeout(timer);
     }
-  }, [isRolling]);
+  }, [isRolling, DiceRoller]);
 
   const handleRollClick = (): void => {
     if (disabled || isRolling) return;

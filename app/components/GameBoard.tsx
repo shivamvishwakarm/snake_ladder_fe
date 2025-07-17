@@ -182,7 +182,7 @@ export default function GameBoard({
     ) {
       startBotAnimation();
     }
-  }, [isUserAnimating, botPosition]);
+  }, [isUserAnimating, botPosition, userPosition, isBotAnimating]);
 
   // Clean up animations on unmount
   useEffect(() => {
@@ -310,13 +310,11 @@ export default function GameBoard({
         const path = `
           M ${x1} ${y1}
           L ${x2} ${y2}
-          M ${x2 - arrowHeadLength * Math.cos(angle - arrowHeadAngle)} ${
-          y2 - arrowHeadLength * Math.sin(angle - arrowHeadAngle)
-        }
+          M ${x2 - arrowHeadLength * Math.cos(angle - arrowHeadAngle)} ${y2 - arrowHeadLength * Math.sin(angle - arrowHeadAngle)
+          }
           L ${x2} ${y2}
-          L ${x2 - arrowHeadLength * Math.cos(angle + arrowHeadAngle)} ${
-          y2 - arrowHeadLength * Math.sin(angle + arrowHeadAngle)
-        }
+          L ${x2 - arrowHeadLength * Math.cos(angle + arrowHeadAngle)} ${y2 - arrowHeadLength * Math.sin(angle + arrowHeadAngle)
+          }
         `;
 
         arrow.setAttribute("d", path);
@@ -378,13 +376,11 @@ export default function GameBoard({
         const path = `
           M ${x1} ${y1}
           L ${x2} ${y2}
-          M ${x2 - arrowHeadLength * Math.cos(angle - arrowHeadAngle)} ${
-          y2 - arrowHeadLength * Math.sin(angle - arrowHeadAngle)
-        }
+          M ${x2 - arrowHeadLength * Math.cos(angle - arrowHeadAngle)} ${y2 - arrowHeadLength * Math.sin(angle - arrowHeadAngle)
+          }
           L ${x2} ${y2}
-          L ${x2 - arrowHeadLength * Math.cos(angle + arrowHeadAngle)} ${
-          y2 - arrowHeadLength * Math.sin(angle + arrowHeadAngle)
-        }
+          L ${x2 - arrowHeadLength * Math.cos(angle + arrowHeadAngle)} ${y2 - arrowHeadLength * Math.sin(angle + arrowHeadAngle)
+          }
         `;
 
         arrow.setAttribute("d", path);

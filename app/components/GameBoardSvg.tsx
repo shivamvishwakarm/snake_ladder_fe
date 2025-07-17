@@ -48,7 +48,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
 
             // Unique gradient ID for each snake
             const gradientId = `snakeGradient-${index}`;
-            const headId = `snakeHead-${index}`;
+            // const headId = `snakeHead-${index}`;
 
             paths.push(
                 <g key={`snake-${from}`}>
@@ -69,7 +69,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
                     />
 
 
-                    {/* Snake Head */}
+                    {/* Snake  */}
                     <circle cx={x1} cy={y1} r="10" fill="#388E3C" />
                     <circle cx={x1 - 3} cy={y1 - 3} r="2" fill="white" />
                     <circle cx={x1 + 3} cy={y1 - 3} r="2" fill="white" />
@@ -83,7 +83,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ players, snakes, ladders }) => {
             );
         });
 
-        Object.entries(ladders).forEach(([fromStr, to], index) => {
+        Object.entries(ladders).forEach(([fromStr, to]) => {
             const from = parseInt(fromStr);
             const { x: x1, y: y1 } = getCoordinates(from);
             const { x: x2, y: y2 } = getCoordinates(to);

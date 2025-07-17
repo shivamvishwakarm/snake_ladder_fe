@@ -61,9 +61,8 @@ export default function Page() {
       const hasStarted =
         player === "user" ? prevState.userStarted : prevState.botStarted;
 
-      let message = `${
-        player === "user" ? "You" : "Bot"
-      } rolled a ${diceValue}.`;
+      let message = `${player === "user" ? "You" : "Bot"
+        } rolled a ${diceValue}.`;
 
       // Check if player can start
       if (!hasStarted) {
@@ -80,25 +79,22 @@ export default function Page() {
 
         // Check if exceeding board size
         if (newPosition > 100) {
-          message += ` ${
-            player === "user" ? "You" : "Bot"
-          } can't move, need exact roll to reach 100.`;
+          message += ` ${player === "user" ? "You" : "Bot"
+            } can't move, need exact roll to reach 100.`;
         } else {
           // Check for ladder
           if (gameRules.ladders[newPosition]) {
             const destination = gameRules.ladders[newPosition];
-            message += ` ${
-              player === "user" ? "You" : "Bot"
-            } climbed from ${newPosition} to ${destination}!`;
+            message += ` ${player === "user" ? "You" : "Bot"
+              } climbed from ${newPosition} to ${destination}!`;
             newPosition = destination;
           }
 
           // Check for snake
           if (gameRules.snakes[newPosition]) {
             const destination = gameRules.snakes[newPosition];
-            message += ` ${
-              player === "user" ? "You" : "Bot"
-            } slid from ${newPosition} to ${destination}!`;
+            message += ` ${player === "user" ? "You" : "Bot"
+              } slid from ${newPosition} to ${destination}!`;
             newPosition = destination;
           }
 
@@ -109,9 +105,8 @@ export default function Page() {
           if (newPosition === 100) {
             newState.gameOver = true;
             newState.winner = player;
-            message += ` ${
-              player === "user" ? "You" : "Bot"
-            } reached 100 and won the game!`;
+            message += ` ${player === "user" ? "You" : "Bot"
+              } reached 100 and won the game!`;
           }
         }
       }
