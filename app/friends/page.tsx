@@ -176,7 +176,7 @@ export default function Page() {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-4 h-screen space-x-10  justify-self-center py-10 px-10
+    <div className="flex  gap-4 h-screen space-x-10  justify-self-center py-10 px-10
 ">
       {/* <div className="flex  flex-col space-y-2">
         {playersState.map((player, idx) => (
